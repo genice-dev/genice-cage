@@ -6,6 +6,7 @@ A GenIce format plugin to detect cage-like topologies.
 Usage: 
     % genice CS1 -r 2 2 2 -f cage[12,14-16:maxring=6] 
     % genice CRN1 -f cage[3-10:json] 
+    % genice CRN1 -f cage[3-10:yaplot] 
 
 It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
 
@@ -13,6 +14,7 @@ Options:
     Cage sizes to be listed, separated by commas and ranged with hyphens. (default is 3 to 8)
     maxring=x  Specify the maximum ring size (default=8).
     json       Output in [JSON](https://www.json.org/) format.
+    yaplot     Visualize with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
 """
 
 import networkx as nx
@@ -21,6 +23,7 @@ from genice_cage.polyhed import Polyhed
 import json
 import numpy as np
 from logging import getLogger
+import yaplotlib as yp
 
 def centerOfMass(members, rpos):
     logger = getLogger()
@@ -40,7 +43,7 @@ def hook2(lattice):
     logger = getLogger()
     logger.info("Hook2: Cages and vitrites")
 
-    cell = lattice.repcell 
+    cell = lattice.repcell.mat
     positions = lattice.reppositions
     graph = nx.Graph(lattice.graph) #undirected
     maxringsize = options["maxring"]
@@ -52,7 +55,8 @@ def hook2(lattice):
     for cage in Polyhed(ringlist, maxcagesize):
         if len(cage) in options["sizes"]:
             cages.append(list(cage))
-    cagepos = [centerOfMass(cage, ringpos) for cage in cages]
+    logger.info("  Cages: {0}".format(len(cages)))
+    cagepos = np.array([centerOfMass(cage, ringpos) for cage in cages])
     if options["json"]:
         output = dict()
         output["rings"] = ringlist
@@ -60,6 +64,25 @@ def hook2(lattice):
         output["ringpos"] = [[x,y,z] for x,y,z in ringpos]
         output["cagepos"] = [[x,y,z] for x,y,z in cagepos]
         print(json.dumps(output, indent=2, sort_keys=True))
+    elif options["yaplot"]:
+        s = ""
+        for c, cage in enumerate(cages):
+            nodes = dict()
+            cagesize = len(cage)
+            for ringid in cage:
+                ns = ringlist[ringid]
+                for node in ns:
+                    if node not in nodes:
+                        # relative pos of the node
+                        nodepos = positions[node] - cagepos[c]
+                        nodepos -= np.floor( nodepos + 0.5 )
+                        # shrink a little
+                        nodes[node] = nodepos * 0.9
+                s += yp.Color(len(ns))
+                s += yp.Layer(cagesize)
+                polygon = (np.array([nodes[node] for node in ns]) + cagepos[c]) @ cell
+                s += yp.Polygon(polygon)
+        print(s + "\n")
     else:
         # human-friendly redundant format
         for cageid, cage in enumerate(cages):
@@ -77,7 +100,7 @@ def argparser(lattice, arg):
     logger = getLogger()
     logger.info("Hook0: Parse options for cage plugin.")
 
-    options={"sizes":set(), "maxring":8, "json":False}
+    options={"sizes":set(), "maxring":8, "json":False, "yaplot":False}
 
     if arg != "":
         for a in arg.split(":"):
@@ -89,6 +112,8 @@ def argparser(lattice, arg):
                     assert False, "Wrong declaration."
             elif a in ("json", "JSON"):
                 options["json"] = True
+            elif a in ("yaplot",):
+                options["yaplot"] = True
             else:
                 # value list for cage sizes
                 for v in a.split(","):
