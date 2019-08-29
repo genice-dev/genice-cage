@@ -2,12 +2,15 @@
 
 A [GenIce](https://github.com/vitroid/GenIce) plugin to detect cage-like topologies.
 
-version 0.1
+version 0.3
 
 ## Requirements
 
 * countrings>=0.1.6
 * genice>=0.25
+* attrdict
+* networkx
+* numpy
 
 ## Installation from PyPI
 
@@ -30,14 +33,16 @@ Copy the files in genice_cage/formats/ into your local formats/ folder.
         % genice CS1 -r 2 2 2 -f cage[12,14-16:maxring=6] 
         % genice CRN1 -f cage[3-10:json] 
         % genice CRN1 -f cage[3-10:yaplot] 
+        % genice CS2 -w tip4p -f cage[gromacs:-16:maxring=6]
     
     It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
     
     Options:
-        Cage sizes to be listed, separated by commas and ranged with hyphens. (default is 3 to 8)
+        Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-8)
         maxring=x  Specify the maximum ring size (default=8).
         json       Output in [JSON](https://www.json.org/) format.
         yaplot     Visualize with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
+        gromacs    Output in Gromacs format. (EXPERIMENTAL)
 
 ## Test in place
 

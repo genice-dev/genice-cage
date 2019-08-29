@@ -41,7 +41,7 @@ setup(
             'cage = genice_cage.formats.cage',
         ],
     },
-    install_requires=['countrings>=0.1.6', 'genice>=0.25',],
+    install_requires=['countrings>=0.1.6', 'genice>=0.25', 'attrdict', 'networkx', 'numpy'],
 
     license='MIT',
 )
