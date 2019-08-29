@@ -2,7 +2,7 @@
 
 A [GenIce](https://github.com/vitroid/GenIce) plugin to detect cage-like topologies.
 
-version 0.3
+version 0.3.1
 
 ## Requirements
 
