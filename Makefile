@@ -25,7 +25,6 @@ CRN1.cage.json: $(PKGNAME)/formats/cage.py Makefile
 test-deploy: build
 	twine upload -r pypitest dist/*
 test-install:
-	pip install pillow
 	pip install --index-url https://test.pypi.org/simple/ $(PKGNAME)
 
 

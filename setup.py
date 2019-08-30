@@ -41,7 +41,7 @@ setup(
             'cage = genice_cage.formats.cage',
         ],
     },
-    install_requires=['countrings>=0.1.6', 'genice>=0.25', 'attrdict', 'networkx', 'numpy'],
+    install_requires=['countrings>=0.1.6', 'genice>=0.25', 'attrdict', 'networkx', 'numpy', 'yaplotlib>=0.1.2'],
 
     license='MIT',
 )
