@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+
 """
 A GenIce format plugin to detect cage-like topologies.
 
@@ -23,6 +24,12 @@ Options:
 
 * [JMM2011] Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)
 """
+
+desc = { "ref": { "JMM2011": 'Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)'},
+         "brief": "Cage analysis.",
+         "usage": __doc__,
+         }
+
 
 # standard modules
 import json
