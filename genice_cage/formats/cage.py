@@ -5,18 +5,18 @@
 A GenIce format plugin to detect cage-like topologies.
 
 Usage: 
-    % genice CS1 -r 2 2 2 -f cage[12,14-16:maxring=6] 
+    % genice CS1 -r 2 2 2 -f cage[12,14-16:ring=-6] 
     % genice CRN1 -f cage[3-10:json] 
     % genice CRN1 -f cage[3-10:yaplot] 
-    % genice CS2 -w tip4p -f cage[gromacs:-16:maxring=6]
+    % genice CS2 -w tip4p -f cage[gromacs:-16:ring=5,6]
     % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
     % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
 
 It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
 
 Options:
-    Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-8)
-    maxring=x  Specify the maximum ring size (default=8).
+    Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-16)
+    ring=3,5-6 Specify the ring sizes that cages are built of (default is 3-8, maximum is 8).
     json       Output values in [JSON](https://www.json.org/) format.
     yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
     gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
@@ -77,8 +77,8 @@ def hook2(lattice):
     cell = lattice.repcell.mat
     positions = lattice.reppositions
     graph = nx.Graph(lattice.graph) #undirected
-    maxringsize = options.maxring
-    ringlist = [[int(x) for x in ring] for ring in cr.CountRings(graph).rings_iter(maxringsize)]
+    ringsize = options.ring
+    ringlist = [[int(x) for x in ring] for ring in cr.CountRings(graph).rings_iter(max(ringsize))]
     for ring in ringlist:
         assert not is_spanning(ring, positions), "Some ring is spanning the cell."
     ringpos = [centerOfMass(ringnodes, positions) for ringnodes in ringlist]
@@ -87,7 +87,12 @@ def hook2(lattice):
     cages = []
     for cage in Polyhed(ringlist, maxcagesize):
         if len(cage) in options.sizes:
-            cages.append(list(cage))
+            valid=True
+            for ringid in cage:
+                if len(ringlist[ringid]) not in ringsize:
+                    valid = False
+            if valid:
+                cages.append(list(cage))
     logger.info("  Cages: {0}".format(len(cages)))
     cagepos = np.array([centerOfMass(cage, ringpos) for cage in cages])
     if options.gromacs:
@@ -223,6 +228,26 @@ def hook6(lattice):
     
 
 
+def rangeparser(s, min=1, max=20):
+    # value list for cage sizes
+    values = set()
+    for v in s.split(","):
+        w = v.split("-")
+        if len(w) == 2:
+            if w[0] == "":
+                w[0] = min
+            else:
+                w[0] = int(w[0])
+            if w[1] == "":
+                w[1] = max
+            else:
+                w[1] = int(w[1])
+            for x in range(w[0], w[1]+1):
+                values.add(x)
+        else:
+            values.add(int(v))
+    return values
+
 def argparser(lattice, arg):
     global options
 
@@ -230,7 +255,7 @@ def argparser(lattice, arg):
     logger.info("Hook0: Parse options for cage plugin.")
 
     options=AttrDict({"sizes":set(),
-                      "maxring":8,
+                      "ring":None,
                       "json":False,
                       "gromacs":False,
                       "yaplot":False,
@@ -242,7 +267,9 @@ def argparser(lattice, arg):
             decl = a.split("=")
             if len(decl) == 2:
                 if decl[0] == "maxring":
-                    options.maxring = int(decl[1])
+                    options.ring = [x for x in range(3,int(decl[1])+1)]
+                elif decl[0] == "ring":
+                    options.ring = rangeparser(decl[1],min=3,max=8)
                 else:
                     assert False, "Wrong declaration."
             elif a in ("json", "JSON"):
@@ -254,26 +281,18 @@ def argparser(lattice, arg):
             elif a in ("quad",):
                 options.quad = True
                 options.sizes = set([12,14,15,16])
-                options.maxring = 6
+                options.ring = set([5,6])
             else:
                 # value list for cage sizes
-                for v in a.split(","):
-                    w = v.split("-")
-                    if len(w) == 2:
-                        if w[0] == "":
-                            w[0] = "1"
-                        if w[1] == "":
-                            w[1] = "20"
-                        for x in range(int(w[0]), int(w[1])+1):
-                            options.sizes.add(x)
-                    else:
-                        options.sizes.add(int(v))
+                options.sizes=rangeparser(a, min=3)
 
     if len(options.sizes) == 0:
-        options.sizes = {3,4,5,6,7,8}
+        options.sizes = set([x for x in range(3,17)])
+    if options.ring is None:
+        options.ring = set([3,4,5,6,7,8])
 
-    logger.info("  Max ring size: {0}".format(options.maxring))
-    logger.info("  Cage sizes:    {0}".format(options.sizes))
+    logger.info("  Ring sizes: {0}".format(options.ring))
+    logger.info("  Cage sizes: {0}".format(options.sizes))
 
     logger.info("Hook0: end.")
 

@@ -6,13 +6,15 @@ all: README.md
 %: temp_% replacer.py $(PKGNAME)/formats/cage.py $(PKGNAME)/__init__.py
 	python replacer.py < $< > $@
 
-test: 1h.cage.gro.test 1h.cage.yap.test CS1.cage.test CS2.cage.json.test CRN1.cage.json.test 
+test: 1h.cage.gro.test 1h.cage.yap.test CS1.cage.test CS2.cage.json.test CRN1.cage.json.test CRN2.cage.test
 CS1.cage: $(PKGNAME)/formats/cage.py Makefile
 	genice CS1 -r 2 2 2 -f cage[12,14-16:maxring=6] > $@
 CS2.cage.json: $(PKGNAME)/formats/cage.py Makefile
 	genice CS2 -f cage[12,14-16:maxring=6:json] > $@
 CRN1.cage.json: $(PKGNAME)/formats/cage.py Makefile
 	genice CRN1 -f cage[-12:maxring=8:json] > $@
+CRN2.cage: $(PKGNAME)/formats/cage.py Makefile
+	genice CRN2 -f cage[ring=6] > $@
 1h.cage.yap: $(PKGNAME)/formats/cage.py Makefile
 	genice 1h -r 2 2 2 -f cage[-5:maxring=6:yaplot] > $@
 1h.cage.gro: $(PKGNAME)/formats/cage.py Makefile
