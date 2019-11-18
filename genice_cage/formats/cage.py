@@ -21,7 +21,7 @@ Options:
     yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
     gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
     quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
-
+    python     Output cage types in python format convenient for GenIce lattice modules. 
 * [JMM2011] Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)
 """
 
@@ -47,6 +47,16 @@ from countrings import countrings_nx as cr
 from genice_cage.polyhed import Polyhed
 import yaplotlib as yp
 
+
+def cage_to_graph(cage, ringlist):
+    g = nx.Graph()
+    for ring in cage:
+        nodes = ringlist[ring]
+        for i in range(len(nodes)):
+            g.add_edge(nodes[i-1], nodes[i])
+    return g
+
+
 def centerOfMass(members, rpos):
     logger = getLogger()
     dsum = np.zeros(3)
@@ -58,15 +68,6 @@ def centerOfMass(members, rpos):
     com -= np.floor(com)
     return com
 
-def is_spanning(ring, coord):
-    logger = getLogger()
-    dsum = 0
-    for i in range(len(ring)):
-        j,k = ring[i-1], ring[i]
-        d = coord[j] - coord[k]
-        d -= np.floor(d+0.5)
-        dsum += d
-    return np.linalg.norm(dsum) > 1e-4
 
 def hook2(lattice):
     global options
@@ -78,9 +79,7 @@ def hook2(lattice):
     positions = lattice.reppositions
     graph = nx.Graph(lattice.graph) #undirected
     ringsize = options.ring
-    ringlist = [[int(x) for x in ring] for ring in cr.CountRings(graph).rings_iter(max(ringsize))]
-    for ring in ringlist:
-        assert not is_spanning(ring, positions), "Some ring is spanning the cell."
+    ringlist = [[int(x) for x in ring] for ring in cr.CountRings(graph, pos=positions).rings_iter(max(ringsize))]
     ringpos = [centerOfMass(ringnodes, positions) for ringnodes in ringlist]
     logger.info("  Rings: {0}".format(len(ringlist)))
     maxcagesize = max(options.sizes)
@@ -173,6 +172,29 @@ def hook2(lattice):
                 polygon = (np.array([nodes[node] for node in ns]) + cagepos[c]) @ cell
                 s += yp.Polygon(polygon)
         print(s + "\n")
+    elif options.python:
+        import graphstat as gs
+        db = gs.GraphStat()
+        labels = set()
+        g_id2label = dict()
+        print('cages="""')
+        for c, cage in enumerate(cages):
+            g = cage_to_graph(cage, ringlist)
+            cagesize = len(cage)
+            g_id = db.query_id(g)
+            if g_id < 0:
+                g_id = db.register()
+                enum = 0
+                label = "{0}".format(cagesize, enum)
+                while label in labels:
+                    enum += 1
+                    label = "{0}_{1}".format(cagesize, enum)
+                g_id2label[g_id] = label
+                labels.add(label)
+            else:
+                label = g_id2label[g_id]
+            print("{0:10s} {1:.4f} {2:.4f} {3:.4f}".format(label, *cagepos[c]))
+        print('"""')
     else:
         # human-friendly redundant format
         for cageid, cage in enumerate(cages):
@@ -260,6 +282,7 @@ def argparser(lattice, arg):
                       "gromacs":False,
                       "yaplot":False,
                       "quad":False,
+                      "python":False,
     })
 
     if arg != "":
@@ -278,6 +301,8 @@ def argparser(lattice, arg):
                 options.gromacs = True
             elif a in ("yaplot",):
                 options.yaplot = True
+            elif a in ("python",):
+                options.python = True
             elif a in ("quad",):
                 options.quad = True
                 options.sizes = set([12,14,15,16])
