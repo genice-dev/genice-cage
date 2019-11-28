@@ -189,7 +189,7 @@ def Polyhed(_rings, maxfragsize=20):
     _G = nx.Graph()
 
     for ring in _rings:
-        _G.add_cycle(ring)
+        nx.add_cycle(_G,ring)
     _ncompo = nx.number_connected_components(_G)
 
     _vitrites = set()
