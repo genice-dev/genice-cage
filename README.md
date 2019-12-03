@@ -2,7 +2,7 @@
 
 A [GenIce](https://github.com/vitroid/GenIce) plugin to detect cage-like topologies.
 
-version 0.4.3
+version 0.4.4
 
 ## Requirements
 
@@ -12,6 +12,7 @@ version 0.4.3
 * networkx
 * numpy
 * yaplotlib>=0.1.2
+* graphstat>=0.2
 
 ## Installation from PyPI
 

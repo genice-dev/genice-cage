@@ -69,6 +69,25 @@ def centerOfMass(members, rpos):
     return com
 
 
+def napsac(storage, nodes, cages_at, marked=set(), members=[]):
+    storage.store(members)
+    for i, node in enumerate(nodes):
+        if len( cages_at[node] & marked ) == 0:
+            napsac(storage, nodes[i+1:], cages_at, marked | set(cages_at[node]), members + [node])
+
+class Storage:
+    longests = set()
+    length=0
+    def store(self, m):
+        if len(m) > self.length:
+            self.length = len(m)
+            self.longests = set()
+        if len(m) == self.length:
+            self.longests.add(tuple(m))
+    def dump(self):
+        return self.longests
+
+
 def hook2(lattice):
     global options
 
@@ -102,27 +121,49 @@ def hook2(lattice):
         return
 
     if options.quad:
-        oncage = defaultdict(list)
-        for cage in cages:
+        cages_at = defaultdict(set)
+        for cageid, cage in enumerate(cages):
             nodes = set()
             for ringid in cage:
                 nodes |= set(ringlist[ringid])
             for node in nodes:
-                oncage[node].append(len(cage))
+                cages_at[node].add(cageid)
         op = dict()
-        for node in oncage:
+        for node in cages_at:
             count = [0 for i in range(17)]
-            for v in oncage[node]:
-                count[v] += 1
+            for cageid in cages_at[node]:
+                siz = len(cages[cageid])
+                count[siz] += 1
             v = "{0}{1}{2}{3}".format(count[12], count[14], count[15], count[16])
             op[node] = v
-            
         stat = defaultdict(int)
         for node in sorted(op):
             v = op[node]
             stat[v] += 1
-
-        if options.json:
+        #secret hack
+        if options.tba:
+            logger.info("  Possible water positions to be replaced with TBA+ ions:")
+            # list possible placements of TBA at four-middle cage points
+            # 1. list of four-middle cage points
+            candids = []
+            cageowners = defaultdict(list)
+            for node in cages_at:
+                mid = True
+                for cageid in cages_at[node]:
+                    siz = len(cages[cageid])
+                    if siz == 12:
+                        mid = False
+                if mid:
+                    candids.append(node)
+                    for cageid in cages_at[node]:
+                        cageowners[cageid].append(node)
+            logger.info("  {0}".format(candids))
+            logger.info("  Possible fillings:")
+            s = Storage()
+            napsac(s, candids, cages_at)
+            for m in s.dump():
+                logger.info("  {0}".format(m))
+        elif options.json:
             output = dict()
             N = positions.shape[0]
             output["op"] = {str(k):v for k,v in op.items()}
@@ -283,6 +324,7 @@ def argparser(lattice, arg):
                       "yaplot":False,
                       "quad":False,
                       "python":False,
+                      "tba": False,
     })
 
     if arg != "":
@@ -303,6 +345,8 @@ def argparser(lattice, arg):
                 options.yaplot = True
             elif a in ("python",):
                 options.python = True
+            elif a in ("tba",):
+                options.tba = True
             elif a in ("quad",):
                 options.quad = True
                 options.sizes = set([12,14,15,16])
