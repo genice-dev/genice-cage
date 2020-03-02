@@ -2,9 +2,10 @@
 
 A [GenIce](https://github.com/vitroid/GenIce) plugin to detect cage-like topologies.
 
-version 0.4.3
+version 0.4.6
 
 ## Requirements
+
 
 * countrings>=0.1.7
 * genice>=0.25
@@ -12,6 +13,7 @@ version 0.4.3
 * networkx
 * numpy
 * yaplotlib>=0.1.2
+* jinja2
 
 ## Installation from PyPI
 
@@ -28,8 +30,7 @@ version 0.4.3
 Copy the files in genice_cage/formats/ into your local formats/ folder.
 
 ## Usage
-
-    
+        
     Usage: 
         % genice CS1 -r 2 2 2 -f cage[12,14-16:ring=-6] 
         % genice CRN1 -f cage[3-10:json] 
@@ -37,9 +38,9 @@ Copy the files in genice_cage/formats/ into your local formats/ folder.
         % genice CS2 -w tip4p -f cage[gromacs:-16:ring=5,6]
         % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
         % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
-    
+
     It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
-    
+
     Options:
         Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-16)
         ring=3,5-6 Specify the ring sizes that cages are built of (default is 3-8, maximum is 8).
