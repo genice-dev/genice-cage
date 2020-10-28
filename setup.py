@@ -42,7 +42,7 @@ setup(
         ],
     },
     install_requires=['countrings>=0.1.7',
-                      'genice>=0.25',
+                      'genice2',
                       'attrdict',
                       'networkx',
                       'numpy',

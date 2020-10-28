@@ -4,10 +4,10 @@
 """
 A GenIce format plugin to detect cage-like topologies.
 
-Usage: 
-    % genice CS1 -r 2 2 2 -f cage[12,14-16:ring=-6] 
-    % genice CRN1 -f cage[3-10:json] 
-    % genice CRN1 -f cage[3-10:yaplot] 
+Usage:
+    % genice CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
+    % genice CRN1 -f cage[3-10:json]
+    % genice CRN1 -f cage[3-10:yaplot]
     % genice CS2 -w tip4p -f cage[gromacs:-16:ring=5,6]
     % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
     % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
@@ -21,7 +21,7 @@ Options:
     yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
     gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
     quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
-    python     Output cage types in python format convenient for GenIce lattice modules. 
+    python     Output cage types in python format convenient for GenIce lattice modules.
 * [JMM2011] Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)
 """
 
@@ -44,7 +44,7 @@ from attrdict import AttrDict
 
 # public modules developed by myself
 from countrings import countrings_nx as cr
-from genice_cage.polyhed import Polyhed
+from genice2.polyhed import Polyhed
 import yaplotlib as yp
 
 
@@ -116,7 +116,7 @@ def hook2(lattice):
                 count[v] += 1
             v = "{0}{1}{2}{3}".format(count[12], count[14], count[15], count[16])
             op[node] = v
-            
+
         stat = defaultdict(int)
         for node in sorted(op):
             v = op[node]
@@ -247,7 +247,7 @@ def hook6(lattice):
             )
     print(s,end="")
     lattice.logger.info("Hook6: end.")
-    
+
 
 
 def rangeparser(s, min=1, max=20):
