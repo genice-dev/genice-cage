@@ -43,31 +43,10 @@ import numpy as np
 from attrdict import AttrDict
 
 # public modules developed by myself
-from countrings import countrings_nx as cr
-from genice2.polyhed import Polyhed
+from cycless.polyhed import polyhedra_iter, cage_to_graph
+from cycless.cycles  import centerOfMass, cycles_iter
 import genice2.formats
 import yaplotlib as yp
-
-
-def cage_to_graph(cage, ringlist):
-    g = nx.Graph()
-    for ring in cage:
-        nodes = ringlist[ring]
-        for i in range(len(nodes)):
-            g.add_edge(nodes[i-1], nodes[i])
-    return g
-
-
-def centerOfMass(members, rpos):
-    logger = getLogger()
-    dsum = np.zeros(3)
-    for member in members:
-        d = rpos[member] - rpos[members[0]]
-        d -= np.floor(d+0.5)
-        dsum += d
-    com = rpos[members[0]] + dsum / len(members)
-    com -= np.floor(com)
-    return com
 
 
 def rangeparser(s, min=1, max=20):
@@ -124,7 +103,7 @@ class Format(genice2.formats.Format):
                 options.ring = set([5,6])
             else:
                 # value list for cage sizes
-                options.sizes=rangeparser(a, min=3)
+                options.sizes=rangeparser(k, min=3)
         super().__init__(**kwargs)
 
         if len(options.sizes) == 0:
@@ -149,12 +128,12 @@ class Format(genice2.formats.Format):
         positions = lattice.reppositions
         graph = nx.Graph(lattice.graph) #undirected
         ringsize = self.options.ring
-        ringlist = [[int(x) for x in ring] for ring in cr.CountRings(graph, pos=positions).rings_iter(max(ringsize))]
+        ringlist = [[int(x) for x in ring] for ring in cycles_iter(graph, max(ringsize), pos=positions)]
         ringpos = [centerOfMass(ringnodes, positions) for ringnodes in ringlist]
         logger.info("  Rings: {0}".format(len(ringlist)))
         maxcagesize = max(self.options.sizes)
         cages = []
-        for cage in Polyhed(ringlist, maxcagesize):
+        for cage in polyhedra_iter(ringlist, maxcagesize):
             if len(cage) in self.options.sizes:
                 valid=True
                 for ringid in cage:
@@ -277,8 +256,9 @@ class Format(genice2.formats.Format):
 
 
     def Hook6(self, lattice):
-        lattice.logger.info("Hook6: Output in Gromacs format.")
-        lattice.logger.info("  Total number of atoms: {0}".format(len(lattice.atoms)))
+        logger = getLogger()
+        logger.info("Hook6: Output in Gromacs format.")
+        logger.info("  Total number of atoms: {0}".format(len(lattice.atoms)))
         cellmat = lattice.repcell.mat
         s = ""
         mols = defaultdict(list)
@@ -305,14 +285,14 @@ class Format(genice2.formats.Format):
             else:
                 assert cellmat[0,1] == 0 and cellmat[0,2] == 0 and cellmat[1,2] == 0
                 s += "    {0} {1} {2} {3} {4} {5} {6} {7} {8}\n".format(cellmat[0,0],
-                                                                        cellmat[1,1],
-                                                                        cellmat[2,2],
-                                                                        cellmat[0,1],
-                                                                        cellmat[0,2],
-                                                                        cellmat[1,0],
-                                                                        cellmat[1,2],
-                                                                        cellmat[2,0],
-                                                                        cellmat[2,1],
+                                cellmat[1,1],
+                                cellmat[2,2],
+                                cellmat[0,1],
+                                cellmat[0,2],
+                                cellmat[1,0],
+                                cellmat[1,2],
+                                cellmat[2,0],
+                                cellmat[2,1],
                 )
         print(s,end="")
-        lattice.logger.info("Hook6: end.")
+        logger.info("Hook6: end.")
