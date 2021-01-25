@@ -1,14 +1,13 @@
-# [genice-cage](https://github.com/vitroid/genice-cage/)
+# [genice2_cage](https://github.com/vitroid/genice-cage/)
 
-A [GenIce](https://github.com/vitroid/GenIce) plugin to detect cage-like topologies.
+A [GenIce2](https://github.com/vitroid/GenIce) format plugin to detect cage-like topologies.
 
-version 0.4.6
+version 0.6
 
 ## Requirements
 
 
-* countrings>=0.1.7
-* genice>=0.25
+* cycless
 * attrdict
 * networkx
 * numpy
@@ -17,25 +16,29 @@ version 0.4.6
 
 ## Installation from PyPI
 
-    % pip install genice_cage
+```shell
+% pip install genice2_cage
+```
 
 ## Manual Installation
 
 ### System-wide installation
 
-    % make install
+```shell
+% make install
+```
 
 ### Private installation
 
-Copy the files in genice_cage/formats/ into your local formats/ folder.
+Copy the files in genice2_cage/formats/ into your local formats/ folder.
 
 ## Usage
         
-    Usage: 
-        % genice CS1 -r 2 2 2 -f cage[12,14-16:ring=-6] 
-        % genice CRN1 -f cage[3-10:json] 
-        % genice CRN1 -f cage[3-10:yaplot] 
-        % genice CS2 -w tip4p -f cage[gromacs:-16:ring=5,6]
+    Usage:
+        % genice CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
+        % genice CRN1 -f cage[sizes=3-10:json]
+        % genice CRN1 -f cage[sizes=3-10:yaplot]
+        % genice CS2 -w tip4p -f cage[gromacs:sizes=-16:ring=5,6]
         % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
         % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
 
@@ -48,12 +51,14 @@ Copy the files in genice_cage/formats/ into your local formats/ folder.
         yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
         gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
         quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
-        python     Output cage types in python format convenient for GenIce lattice modules. 
+        python     Output cage types in python format convenient for GenIce lattice modules.
     * [JMM2011] Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)
 
 ## Test in place
 
-    % make test
+```shell
+% make test
+```
 
 ## Algorithms
 

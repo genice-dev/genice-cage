@@ -1,6 +1,6 @@
-# [genice-cage]({{url}})
+# [{{package}}]({{url}})
 
-A [GenIce](https://github.com/vitroid/GenIce) plugin to detect cage-like topologies.
+{{summary}}
 
 version {{version}}
 
@@ -12,17 +12,21 @@ version {{version}}
 
 ## Installation from PyPI
 
-    % pip install {{package}}
+```shell
+% pip install {{package}}
+```
 
 ## Manual Installation
 
 ### System-wide installation
 
-    % make install
+```shell
+% make install
+```
 
 ### Private installation
 
-Copy the files in genice_cage/formats/ into your local formats/ folder.
+Copy the files in {{base}}/formats/ into your local formats/ folder.
 
 ## Usage
 
@@ -32,7 +36,9 @@ Copy the files in genice_cage/formats/ into your local formats/ folder.
 
 ## Test in place
 
-    % make test
+```shell
+% make test
+```
 
 ## Algorithms
 

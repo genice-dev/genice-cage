@@ -9,14 +9,14 @@ import re
 #Copied from wheel package
 here = os.path.abspath(os.path.dirname(__file__))
 
-with codecs.open(os.path.join(os.path.dirname(__file__), 'genice_cage', '__init__.py'),
+with codecs.open(os.path.join(os.path.dirname(__file__), 'genice2_cage', '__init__.py'),
                  encoding='utf8') as version_file:
     metadata = dict(re.findall(r"""__([a-z]+)__ = "([^"]+)""", version_file.read()))
 
 long_desc = "".join(open("README.md").readlines())
 
 setup(
-    name='genice_cage',
+    name='genice2_cage',
     version=metadata['version'],
     description='Cage detection plugin for GenIce.',
     long_description=long_desc,
@@ -32,13 +32,13 @@ setup(
     url='https://github.com/vitroid/genice-cage/',
     keywords=['genice', 'cage'],
 
-    packages=['genice_cage',
-              'genice_cage.formats',
+    packages=['genice2_cage',
+              'genice2_cage.formats',
     ],
 
     entry_points = {
-        'genice_format': [
-            'cage = genice_cage.formats.cage',
+        'genice2_format': [
+            'cage = genice2_cage.formats.cage',
         ],
     },
     install_requires=['cycless',
