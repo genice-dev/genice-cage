@@ -46,7 +46,7 @@ setup(
                       'networkx',
                       'numpy',
                       'yaplotlib>=0.1.2',
-                      'jinja2'],
+                      ],
 
     license='MIT',
 )

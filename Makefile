@@ -5,7 +5,8 @@ PACKAGE=genice2-cage
 
 all: README.md
 
-%: temp_% replacer.py $(BASE)/formats/cage.py $(BASE)/__init__.py
+%: temp_% replacer.py $(wildcard $(BASE)/formats/*.py) $(BASE)/__init__.py
+	pip install genice2_dev
 	python replacer.py < $< > $@
 
 test: 1h.cage.gro.test 1h.cage.yap.test CS1.cage.test CS2.cage.json.test CRN1.cage.json.test CRN2.cage.test
@@ -37,7 +38,7 @@ install:
 	./setup.py install
 uninstall:
 	-pip uninstall -y $(PACKAGE)
-build: README.md $(wildcard $(BASE)/formats*.py)
+build: README.md $(wildcard $(BASE)/formats/*.py)
 	./setup.py sdist bdist_wheel
 
 
