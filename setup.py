@@ -16,7 +16,7 @@ with codecs.open(os.path.join(os.path.dirname(__file__), 'genice2_cage', '__init
 long_desc = "".join(open("README.md").readlines())
 
 setup(
-    name='genice2_cage',
+    name='genice2-cage',
     version=metadata['version'],
     description='Cage detection plugin for GenIce.',
     long_description=long_desc,
