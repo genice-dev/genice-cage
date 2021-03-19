@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-__version__ = "2.0"  # for genice2
+__version__ = "2.1"  # for genice2

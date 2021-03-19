@@ -47,6 +47,7 @@ from cycless.polyhed import polyhedra_iter, cage_to_graph
 from cycless.cycles  import centerOfMass, cycles_iter
 import genice2.formats
 import yaplotlib as yp
+from genice2.molecules  import serialize
 
 
 def rangeparser(s, min=1, max=20):
@@ -258,11 +259,13 @@ class Format(genice2.formats.Format):
     def Hook6(self, lattice):
         logger = getLogger()
         logger.info("Hook6: Output in Gromacs format.")
-        logger.info("  Total number of atoms: {0}".format(len(lattice.atoms)))
+        atoms = []
+        for mols in ice.universe:
+            atoms += serialize(mols)
         cellmat = lattice.repcell.mat
         s = ""
         mols = defaultdict(list)
-        for atom in lattice.atoms:
+        for atom in atoms:
             resno, resname, atomname, position, order = atom
             logger.debug(atom)
             mols[order].append(atom)
