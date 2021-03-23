@@ -1,8 +1,8 @@
-# [genice2_cage](https://github.com/vitroid/genice-cage/)
+# [genice2-cage](https://github.com/vitroid/genice-cage/)
 
 A [GenIce2](https://github.com/vitroid/GenIce) format plugin to detect cage-like topologies.
 
-version 2.0
+version 2.1
 
 ## Requirements
 
@@ -12,11 +12,12 @@ version 2.0
 * networkx
 * numpy
 * yaplotlib>=0.1.2
+* genice2>=2.1b0
 
 ## Installation from PyPI
 
 ```shell
-% pip install genice2_cage
+% pip install genice2-cage
 ```
 
 ## Manual Installation

@@ -47,6 +47,7 @@ from cycless.polyhed import polyhedra_iter, cage_to_graph
 from cycless.cycles  import centerOfMass, cycles_iter
 import genice2.formats
 import yaplotlib as yp
+from genice2.molecules  import serialize
 
 
 def rangeparser(s, min=1, max=20):
@@ -120,13 +121,13 @@ class Format(genice2.formats.Format):
         return {2:self.Hook2, 6:self.Hook6}
 
 
-    def Hook2(self, lattice):
+    def Hook2(self, ice):
         logger = getLogger()
         logger.info("Hook2: Cages and vitrites")
 
-        cell = lattice.repcell.mat
-        positions = lattice.reppositions
-        graph = nx.Graph(lattice.graph) #undirected
+        cell = ice.repcell.mat
+        positions = ice.reppositions
+        graph = nx.Graph(ice.graph) #undirected
         ringsize = self.options.ring
         ringlist = [[int(x) for x in ring] for ring in cycles_iter(graph, max(ringsize), pos=positions)]
         ringpos = [centerOfMass(ringnodes, positions) for ringnodes in ringlist]
@@ -255,14 +256,16 @@ class Format(genice2.formats.Format):
         return True # terminate
 
 
-    def Hook6(self, lattice):
+    def Hook6(self, ice):
         logger = getLogger()
         logger.info("Hook6: Output in Gromacs format.")
-        logger.info("  Total number of atoms: {0}".format(len(lattice.atoms)))
-        cellmat = lattice.repcell.mat
+        atoms = []
+        for mols in ice.universe:
+            atoms += serialize(mols)
+        cellmat = ice.repcell.mat
         s = ""
         mols = defaultdict(list)
-        for atom in lattice.atoms:
+        for atom in atoms:
             resno, resname, atomname, position, order = atom
             logger.debug(atom)
             mols[order].append(atom)
