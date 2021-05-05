@@ -2,7 +2,7 @@
 
 A [GenIce2](https://github.com/vitroid/GenIce) format plugin to detect cage-like topologies.
 
-version 2.1
+version 2.1.1
 
 ## Requirements
 
@@ -35,12 +35,12 @@ Copy the files in genice2_cage/formats/ into your local formats/ folder.
 ## Usage
         
     Usage:
-        % genice CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
-        % genice CRN1 -f cage[sizes=3-10:json]
-        % genice CRN1 -f cage[sizes=3-10:yaplot]
-        % genice CS2 -w tip4p -f cage[gromacs:sizes=-16:ring=5,6]
-        % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
-        % analice traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
+        % genice2 CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
+        % genice2 CRN1 -f cage[sizes=3-10:json]
+        % genice2 CRN1 -f cage[sizes=3-10:yaplot]
+        % genice2 CS2 -w tip4p -f cage[gromacs:sizes=-16:ring=5,6]
+        % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
+        % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
 
     It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
 
