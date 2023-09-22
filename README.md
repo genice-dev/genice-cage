@@ -2,9 +2,10 @@
 
 A [GenIce2](https://github.com/vitroid/GenIce) format plugin to detect cage-like topologies.
 
-version 2.1.1
+version 2.2
 
 ## Requirements
+
 
 * cycless
 * attrdict
@@ -33,29 +34,27 @@ Copy the files in genice2_cage/formats/ into your local formats/ folder.
 
 ## Usage
         
-```
-Usage:
-    % genice2 CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
-    % genice2 CRN1 -f cage[sizes=3-10:json]
-    % genice2 CRN1 -f cage[sizes=3-10:yaplot]
-    % genice2 CS2 -w tip4p -f cage[gromacs:sizes=-16:ring=5,6]
-    % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
-    % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
-    % genice2 FAU -r 2 2 2 -f cage[-26:maxring=12:json2]
+    Usage:
+        % genice2 CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
+        % genice2 CRN1 -f cage[sizes=3-10:json]
+        % genice2 CRN1 -f cage[sizes=3-10:yaplot]
+        % genice2 CS2 -w tip4p -f cage[gromacs:sizes=-16:ring=5,6]
+        % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
+        % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
+        % genice2 FAU -r 2 2 2 -f cage[-26:maxring=12:json2]
 
-It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
+    It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
 
-Options:
-    Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-16)
-    ring=3,5-6 Specify the ring sizes that cages are built of (default is 3-8, maximum is 8).
-    json       Output values in [JSON](https://www.json.org/) format.
-    json2      Output values in [JSON](https://www.json.org/) format (Assess cage locations based on HB network topology by labeling them).
-    yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
-    gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
-    quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
-    python     Output cage types in python format convenient for GenIce lattice modules.
-* [JMM2011] Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)
-```
+    Options:
+        Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-16)
+        ring=3,5-6 Specify the ring sizes that cages are built of (default is 3-8, maximum is 8).
+        json       Output values in [JSON](https://www.json.org/) format.
+        json2      Output values in [JSON](https://www.json.org/) format (Assess cage locations based on HB network topology by labeling them).
+        yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
+        gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
+        quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
+        python     Output cage types in python format convenient for GenIce lattice modules.
+    * [JMM2011] Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)
 
 ## Test in place
 

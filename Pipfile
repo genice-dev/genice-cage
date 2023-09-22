@@ -7,6 +7,7 @@ name = "pypi"
 genice2 = "*"
 
 [dev-packages]
+twine = "*"
 
 [requires]
 python_version = "3.11"
