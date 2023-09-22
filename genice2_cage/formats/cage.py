@@ -40,7 +40,8 @@ from math import log2
 # external modules
 import networkx as nx
 import numpy as np
-from attrdict import AttrDict
+# old and not python3.11 compat
+# from attrdict import AttrDict
 
 # public modules developed by myself
 from cycless.polyhed import polyhedra_iter, cage_to_graph
@@ -74,46 +75,46 @@ def rangeparser(s, min=1, max=20):
 class Format(genice2.formats.Format):
     def __init__(self, **kwargs):
         logger = getLogger()
-        options=AttrDict({"sizes":set(),
-                          "ring":None,
-                          "json":False,
-                          "gromacs":False,
-                          "yaplot":False,
-                          "quad":False,
-                          "python":False,
-        })
+        options={"sizes":set(),
+            "ring":None,
+            "json":False,
+            "gromacs":False,
+            "yaplot":False,
+            "quad":False,
+            "python":False,
+        }
         unknown = dict()
         for k, v in kwargs.items():
             if k == "maxring":
-                options.ring = [x for x in range(3,int(v)+1)]
+                options["ring"] = [x for x in range(3,int(v)+1)]
             elif k == "ring":
-                options.ring = rangeparser(v,min=3,max=8)
+                options["ring"] = rangeparser(v,min=3,max=8)
             elif k == "sizes":
-                options.sizes = rangeparser(v,min=3,max=20)
+                options["sizes"] = rangeparser(v,min=3,max=20)
             elif k in ("json", "JSON"):
-                options.json = v
+                options["json"] = v
             elif k in ("gromacs",):
-                options.gromacs = v
+                options["gromacs"] = v
             elif k in ("yaplot",):
-                options.yaplot = v
+                options["yaplot"] = v
             elif k in ("python",):
-                options.python = v
+                options["python"] = v
             elif k in ("quad",):
-                options.quad = v
-                options.sizes = set([12,14,15,16])
-                options.ring = set([5,6])
+                options["quad"] = v
+                options["sizes"] = set([12,14,15,16])
+                options["ring"] = set([5,6])
             else:
                 # value list for cage sizes
-                options.sizes=rangeparser(k, min=3)
+                options["sizes"]=rangeparser(k, min=3)
         super().__init__(**kwargs)
 
-        if len(options.sizes) == 0:
-            options.sizes = set([x for x in range(3,17)])
-        if options.ring is None:
-            options.ring = set([3,4,5,6,7,8])
+        if len(options["sizes"]) == 0:
+            options["sizes"] = set([x for x in range(3,17)])
+        if options["ring"] is None:
+            options["ring"] = set([3,4,5,6,7,8])
 
-        logger.info("  Ring sizes: {0}".format(options.ring))
-        logger.info("  Cage sizes: {0}".format(options.sizes))
+        logger.info("  Ring sizes: {0}".format(options["ring"]))
+        logger.info("  Cage sizes: {0}".format(options["sizes"]))
         self.options = options
 
 
@@ -128,14 +129,14 @@ class Format(genice2.formats.Format):
         cell = ice.repcell.mat
         positions = ice.reppositions
         graph = nx.Graph(ice.graph) #undirected
-        ringsize = self.options.ring
+        ringsize = self.options["ring"]
         ringlist = [[int(x) for x in ring] for ring in cycles_iter(graph, max(ringsize), pos=positions)]
         ringpos = [centerOfMass(ringnodes, positions) for ringnodes in ringlist]
         logger.info("  Rings: {0}".format(len(ringlist)))
-        maxcagesize = max(self.options.sizes)
+        maxcagesize = max(self.options["sizes"])
         cages = []
         for cage in polyhedra_iter(ringlist, maxcagesize):
-            if len(cage) in self.options.sizes:
+            if len(cage) in self.options["sizes"]:
                 valid=True
                 for ringid in cage:
                     if len(ringlist[ringid]) not in ringsize:
@@ -144,14 +145,14 @@ class Format(genice2.formats.Format):
                     cages.append(list(cage))
         logger.info("  Cages: {0}".format(len(cages)))
         cagepos = np.array([centerOfMass(cage, ringpos) for cage in cages])
-        if self.options.gromacs:
-            self.options.rings = ringlist
-            self.options.cages = cages
+        if self.options["gromacs"]:
+            self.options["rings"] = ringlist
+            self.options["cages"] = cages
             logger.debug("##2 {0}".format(cages))
             logger.info("Hook2: end.")
             return
 
-        if self.options.quad:
+        if self.options["quad"]:
             oncage = defaultdict(list)
             for cage in cages:
                 nodes = set()
@@ -172,7 +173,7 @@ class Format(genice2.formats.Format):
                 v = op[node]
                 stat[v] += 1
 
-            if self.options.json:
+            if self.options["json"]:
                 output = dict()
                 N = positions.shape[0]
                 output["op"] = {str(k):v for k,v in op.items()}
@@ -196,14 +197,14 @@ class Format(genice2.formats.Format):
             #        if v in ideal[ref]:
             #            dKL += ideal[ref][v]*(log2(ideal[ref][v]) - log2(stat[v]/positions.shape[0]))
             #    print("{0} dKL={1}".format(ref, dKL))
-        elif self.options.json:
+        elif self.options["json"]:
             output = dict()
             output["rings"] = ringlist
             output["cages"] = cages
             output["ringpos"] = [[x,y,z] for x,y,z in ringpos]
             output["cagepos"] = [[x,y,z] for x,y,z in cagepos]
             print(json.dumps(output, indent=2, sort_keys=True))
-        elif self.options.yaplot:
+        elif self.options["yaplot"]:
             s = ""
             for c, cage in enumerate(cages):
                 nodes = dict()
@@ -222,7 +223,7 @@ class Format(genice2.formats.Format):
                     polygon = (np.array([nodes[node] for node in ns]) + cagepos[c]) @ cell
                     s += yp.Polygon(polygon)
             print(s)
-        elif self.options.python:
+        elif self.options["python"]:
             import graphstat as gs
             db = gs.GraphStat()
             labels = set()
@@ -269,14 +270,14 @@ class Format(genice2.formats.Format):
             resno, resname, atomname, position, order = atom
             logger.debug(atom)
             mols[order].append(atom)
-        for cage in self.options.cages:
+        for cage in self.options["cages"]:
             logger.debug(cage)
             s += "Generated by GenIce https://github.com/vitroid/GenIce \n"
             f = ""
             cagemols = set()
             atomcount = 0
             for ring in cage:
-                cagemols |= set(self.options.rings[ring])
+                cagemols |= set(self.options["rings"][ring])
             for mol in cagemols:
                 for atom in mols[mol]:
                     resno, resname, atomname, position, order = atom
