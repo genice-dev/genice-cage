@@ -69,14 +69,12 @@ def assign_unused_label(basename, labels):
 
 
 def make_cage_expression(ring_ids, ringlist):
-    ringcount = [0 for _ in range(9)]
-    for ring in ring_ids:
-        ringcount[len(ringlist[ring])] += 1
-    index = []
-    for i in range(9):
-        if ringcount[i] > 0:
-            index.append(f"{i}^{ringcount[i]}")
-    index = " ".join(index)
+    # list the sizes of rings in the ringlist
+    ringsizes = np.array([len(ring) for ring in ringlist])
+    # count the occurrences
+    values, counts = np.unique(ringsizes, return_counts=True)
+    # sort and stringify
+    index = " ".join([f"{ringsize}^{counts[i]}" for i, ringsize in enumerate(values)])
     return index
 
 
@@ -107,6 +105,7 @@ class Format(genice2.formats.Format):
         options={"sizes":set(),
             "ring":None,
             "json":False,
+            "json2":False,
             "gromacs":False,
             "yaplot":False,
             "quad":False,

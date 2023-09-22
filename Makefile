@@ -9,7 +9,7 @@ all: README.md
 	pip install genice2-dev
 	python replacer.py < $< > $@
 
-test: 1h.cage.gro.test 1h.cage.yap.test CS1.cage.test CS2.cage.json.test CRN1.cage.json.test CRN2.cage.test
+test: FAU.cage.json.test 1h.cage.gro.test 1h.cage.yap.test CS1.cage.test CS2.cage.json.test CRN1.cage.json.test CRN2.cage.test 
 CS1.cage: $(BASE)/formats/cage.py Makefile
 	( cd $(BASE) && $(GENICE) CS1 -r 2 2 2 -f cage[12,14-16:maxring=6] ) > $@
 CS2.cage.json: $(BASE)/formats/cage.py Makefile
@@ -22,6 +22,8 @@ CRN2.cage: $(BASE)/formats/cage.py Makefile
 	( cd $(BASE) && $(GENICE) 1h -r 2 2 2 -f cage[-5:maxring=6:yaplot] ) > $@
 1h.cage.gro: $(BASE)/formats/cage.py Makefile
 	( cd $(BASE) && $(GENICE) 1h -r 2 2 2 -f cage[-5:maxring=6:gromacs] ) > $@
+FAU.cage.json: $(BASE)/formats/cage.py Makefile
+	( cd $(BASE) && $(GENICE) FAU -r 2 2 2 -f cage[-30:maxring=12:json2] ) > $@
 %.test:
 	make $*
 	diff $* ref/$*
