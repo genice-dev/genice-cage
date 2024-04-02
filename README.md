@@ -1,18 +1,21 @@
-# [genice2-cage](https://github.com/vitroid/genice-cage/)
+![Logo](https://raw.githubusercontent.com/vitroid/GenIce/develop/logo/genice-v0.png)
 
-A [GenIce2](https://github.com/vitroid/GenIce) format plugin to detect cage-like topologies.
+# [genice2-cage](https://github.com/vitroid/genice-cage)
+
+A format plugin for [GenIce2](https://github.com/vitroid/GenIce) to detect cages.
 
 version 2.2
 
 ## Requirements
 
+* python^3.9
+* GenIce2^2.2.5.2
+* graphstat^0.2.1
+* cycless^0.4.2
+* yaplotlib^0.1.2
+* numpy^1.26.4
+* networkx^3.2.1
 
-* cycless
-* attrdict
-* networkx
-* numpy
-* yaplotlib>=0.1.2
-* genice2>=2.1b0
 
 ## Installation from PyPI
 
@@ -20,20 +23,10 @@ version 2.2
 % pip install genice2-cage
 ```
 
-## Manual Installation
-
-### System-wide installation
-
-```shell
-% make install
-```
-
-### Private installation
-
-Copy the files in genice2_cage/formats/ into your local formats/ folder.
-
 ## Usage
         
+    A GenIce2 format plugin to detect cage-like topologies.
+
     Usage:
         % genice2 CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
         % genice2 CRN1 -f cage[sizes=3-10:json]
@@ -55,6 +48,8 @@ Copy the files in genice2_cage/formats/ into your local formats/ folder.
         quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
         python     Output cage types in python format convenient for GenIce lattice modules.
     * [JMM2011] Jacobson, L. C., Matsumoto, M. & Molinero, V. Order parameters for the multistep crystallization of clathrate hydrates. J. Chem. Phys. 135, 074501 (2011).[doi:10.1063/1.3613667](https://doi.org/10.1063/1.3613667)
+
+
 
 ## Test in place
 

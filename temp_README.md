@@ -1,38 +1,28 @@
-# [{{package}}]({{url}})
+![Logo]({{tool.genice.urls.logo}})
 
-{{summary}}
+# [{{project.name}}]({{project.urls.Homepage}})
+
+A format plugin for [GenIce2]({{tool.genice.urls.repository}}) to detect cages.
 
 version {{version}}
 
 ## Requirements
 
-{% for i in requires %}
-* {{i}}
-{%- endfor %}
+{% for item in tool.poetry.dependencies %}* {{item}}{{tool.poetry.dependencies[item]}}
+{% endfor %}
 
 ## Installation from PyPI
 
 ```shell
-% pip install {{package}}
+% pip install {{project.name}}
 ```
-
-## Manual Installation
-
-### System-wide installation
-
-```shell
-% make install
-```
-
-### Private installation
-
-Copy the files in {{base}}/formats/ into your local formats/ folder.
 
 ## Usage
 
 {%- filter indent %}
     {{usage}}
 {%- endfilter %}
+
 
 ## Test in place
 

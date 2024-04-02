@@ -3,7 +3,6 @@
 *.cif
 *.png
 1h.cage.yap
-*.gro
 build
 dist
 *.egg-info
@@ -11,3 +10,5 @@ dist
 /*.cage
 /*.json
 *.lock
+/*.gro
+/*.yap

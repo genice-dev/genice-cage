@@ -1,54 +1,51 @@
 .DELETE_ON_ERROR:
 GENICE=genice2
-BASE=genice2_cage
-PACKAGE=genice2-cage
+BASENAME=genice2_cage
+PIPNAME=genice2-cage
 
 all: README.md
 
-%: temp_% replacer.py $(wildcard $(BASE)/formats/*.py) $(BASE)/__init__.py
-	pip install genice2-dev
-	python replacer.py < $< > $@
-
 test: FAU.cage.json.test 1h.cage.gro.test 1h.cage.yap.test CS1.cage.test CS2.cage.json.test CRN1.cage.json.test CRN2.cage.test 
-CS1.cage: $(BASE)/formats/cage.py Makefile
-	( cd $(BASE) && $(GENICE) CS1 -r 2 2 2 -f cage[12,14-16:maxring=6] ) > $@
-CS2.cage.json: $(BASE)/formats/cage.py Makefile
-	( cd $(BASE) && $(GENICE) CS2 -f cage[12,14-16:maxring=6:json] ) > $@
-CRN1.cage.json: $(BASE)/formats/cage.py Makefile
-	( cd $(BASE) && $(GENICE) CRN1 -f cage[-12:maxring=8:json] ) > $@
-CRN2.cage: $(BASE)/formats/cage.py Makefile
-	( cd $(BASE) && $(GENICE) CRN2 -f cage[ring=6] ) > $@
-1h.cage.yap: $(BASE)/formats/cage.py Makefile
-	( cd $(BASE) && $(GENICE) 1h -r 2 2 2 -f cage[-5:maxring=6:yaplot] ) > $@
-1h.cage.gro: $(BASE)/formats/cage.py Makefile
-	( cd $(BASE) && $(GENICE) 1h -r 2 2 2 -f cage[-5:maxring=6:gromacs] ) > $@
-FAU.cage.json: $(BASE)/formats/cage.py Makefile
-	( cd $(BASE) && $(GENICE) FAU -r 2 2 2 -f cage[-30:maxring=12:json2] ) > $@
+CS1.cage: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) CS1 -r 2 2 2 -f cage[12,14-16:maxring=6] ) > $@
+CS2.cage.json: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) CS2 -f cage[12,14-16:maxring=6:json] ) > $@
+CRN1.cage.json: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) CRN1 -f cage[-12:maxring=8:json] ) > $@
+CRN2.cage: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) CRN2 -f cage[ring=6] ) > $@
+1h.cage.yap: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) ice1h -r 2 2 2 -f cage[-5:maxring=6:yaplot] ) > $@
+1h.cage.gro: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) ice1h -r 2 2 2 -f cage[-5:maxring=6:gromacs] ) > $@
+FAU.cage.json: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) FAU -r 2 2 2 -f cage[-30:maxring=12:json2] ) > $@
+FAU.cage.yap: $(BASENAME)/formats/cage.py Makefile
+	( cd $(BASENAME) && $(GENICE) FAU -r 2 2 2 -f cage[-30:maxring=6:yaplot] ) > $@
 %.test:
 	make $*
 	diff $* ref/$*
 
 
-test-deploy: build
-	twine upload -r pypitest dist/*
+%: temp_% replacer.py $(wildcard $(BASENAME)/formats/*.py) $(wildcard $(BASENAME)/*.py) pyproject.toml
+	python replacer.py $< > $@
+
+
+test-deploy:
+	poetry publish --build -r testpypi
 test-install:
-	pip install --index-url https://test.pypi.org/simple/ $(PACKAGE)
-
-
-
-install:
-	./setup.py install
+	pip install --index-url https://test.pypi.org/simple/ $(PIPNAME)
 uninstall:
-	-pip uninstall -y $(PACKAGE)
-build: README.md $(wildcard $(BASE)/formats/*.py)
-	./setup.py sdist bdist_wheel
-
-
-deploy: build
-	twine upload --repository pypi dist/*
+	-pip uninstall -y $(PIPNAME)
+build: README.md $(wildcard genice2_yaplot/*.py)
+	poetry build
+deploy:
+	poetry publish --build
 check:
-	./setup.py check
+	poetry check
+
+
 clean:
-	-rm $(ALL) *~ */*~ *.cage *.json
+	-rm $(ALL) *~ */*~ *svg CS2.png
 	-rm -rf build dist *.egg-info
 	-find . -name __pycache__ | xargs rm -rf

@@ -1,10 +1,17 @@
 #!/usr/bin/env python
-from genice2_dev import template
+from jinja2 import Template, BaseLoader, Environment, FileSystemLoader
+import toml
+import genice2_cage.formats.cage
 
 import sys
-from genice2_cage.formats.cage import __doc__ as doc
-import distutils.core
 
-setup = distutils.core.run_setup("setup.py")
+project = toml.load("pyproject.toml")
 
-print(template(sys.stdin.read(), doc, setup))
+project |= {
+    "usage": genice2_cage.formats.cage.desc["usage"],
+    "version": genice2_cage.__version__,
+}
+
+t = Environment(loader=FileSystemLoader(searchpath=".")).get_template(sys.argv[1])
+markdown_en = t.render(**project)
+print(markdown_en)
