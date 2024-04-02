@@ -30,9 +30,6 @@ description = "A format plugin for GenIce2 to detect cages."
 authors = ["vitroid <vitroid@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [
-    { include = "genice2_cage" },
-]
 
 [tool.poetry.dependencies]
 python = "^3.9"

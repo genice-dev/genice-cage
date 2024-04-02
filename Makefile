@@ -31,7 +31,7 @@ FAU.cage.yap: $(BASENAME)/formats/cage.py Makefile
 	python replacer.py $< > $@
 
 
-test-deploy:
+test-deploy: clean
 	poetry publish --build -r testpypi
 test-install:
 	pip install --index-url https://test.pypi.org/simple/ $(PIPNAME)
@@ -39,7 +39,7 @@ uninstall:
 	-pip uninstall -y $(PIPNAME)
 build: README.md $(wildcard genice2_yaplot/*.py)
 	poetry build
-deploy:
+deploy: clean
 	poetry publish --build
 check:
 	poetry check
