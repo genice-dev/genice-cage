@@ -41,11 +41,13 @@ import json
 import string
 from logging import getLogger
 from collections import defaultdict, Counter
+
 # from math import log2
 
 # external modules
 import networkx as nx
 import numpy as np
+
 # old and not python3.11 compat
 # from attrdict import AttrDict
 
@@ -102,23 +104,24 @@ def rangeparser(s, min=1, max=20):
 class Format(genice2.formats.Format):
     def __init__(self, **kwargs):
         logger = getLogger()
-        options={"sizes":set(),
-            "ring":None,
-            "json":False,
-            "json2":False,
-            "gromacs":False,
-            "yaplot":False,
-            "quad":False,
-            "python":False,
+        options = {
+            "sizes": set(),
+            "ring": None,
+            "json": False,
+            "json2": False,
+            "gromacs": False,
+            "yaplot": False,
+            "quad": False,
+            "python": False,
         }
         unknown = dict()
         for k, v in kwargs.items():
             if k == "maxring":
-                options["ring"] = [x for x in range(3,int(v)+1)]
+                options["ring"] = [x for x in range(3, int(v) + 1)]
             elif k == "ring":
-                options["ring"] = rangeparser(v,min=3,max=8)
+                options["ring"] = rangeparser(v, min=3, max=8)
             elif k == "sizes":
-                options["sizes"] = rangeparser(v,min=3,max=20)
+                options["sizes"] = rangeparser(v, min=3, max=20)
             elif k in ("json", "JSON"):
                 options["json"] = v
             elif k in ("gromacs",):
@@ -167,7 +170,9 @@ class Format(genice2.formats.Format):
             [int(x) for x in ring]
             for ring in cycles_iter(graph, max(ringsize), pos=positions)
         ]
-        ringpos = [centerOfMass(ringnodes, positions) for ringnodes in ringlist]
+        ringpos = np.array(
+            [centerOfMass(ringnodes, positions) for ringnodes in ringlist]
+        )
         logger.info("  Rings: {0}".format(len(ringlist)))
         maxcagesize = max(self.options["sizes"])
         cages = []
