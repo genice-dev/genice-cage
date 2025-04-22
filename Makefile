@@ -49,3 +49,6 @@ clean:
 	-rm $(ALL) *~ */*~ *svg CS2.png
 	-rm -rf build dist *.egg-info
 	-find . -name __pycache__ | xargs rm -rf
+
+distclean: clean
+	rm -rf *.json *.gro *.yap *.cage @*

@@ -19,26 +19,22 @@ Homepage = "https://github.com/vitroid/genice-cage"
 repository = "https://github.com/vitroid/GenIce"
 logo = "https://raw.githubusercontent.com/vitroid/GenIce/develop/logo/genice-v0.png"
 
-# poetry self add poetry-version-plugin
-[tool.poetry-version-plugin]
-source = "init"
-
 [tool.poetry]
 name = "genice2-cage"
-version = "0.0.0" # for GenIce2.2
+version = "2.4.4" # for GenIce2.2
 description = "A format plugin for GenIce2 to detect cages."
 authors = ["vitroid <vitroid@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 GenIce2 = "^2.2.5.2"
-graphstat = "^0.2.1"
-cycless = "^0.4.2"
+graphstat = "^0.3.3"
 yaplotlib = "^0.1.2"
-numpy = "^1.26.4"
-networkx = "^3.2.1"
+numpy = ">=1.26.4"
+networkx = ">=3.2.1"
+cycless = ">=0.6.3"
 
 [tool.poetry.group.dev.dependencies]
 jinja2 = "^3.1.3"
