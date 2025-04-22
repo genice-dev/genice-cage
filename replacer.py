@@ -9,7 +9,7 @@ project = toml.load("pyproject.toml")
 
 project |= {
     "usage": genice2_cage.formats.cage.desc["usage"],
-    "version": genice2_cage.__version__,
+    "version": project["tool"]["poetry"]["version"],
 }
 
 t = Environment(loader=FileSystemLoader(searchpath=".")).get_template(sys.argv[1])

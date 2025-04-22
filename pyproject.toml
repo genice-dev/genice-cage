@@ -21,7 +21,7 @@ logo = "https://raw.githubusercontent.com/vitroid/GenIce/develop/logo/genice-v0.
 
 [tool.poetry]
 name = "genice2-cage"
-version = "2.4.4" # for GenIce2.2
+version = "2.5.1" # for GenIce2.2
 description = "A format plugin for GenIce2 to detect cages."
 authors = ["vitroid <vitroid@gmail.com>"]
 license = "MIT"

@@ -4,17 +4,17 @@
 
 A format plugin for [GenIce2](https://github.com/vitroid/GenIce) to detect cages.
 
-version 2.2
+version 2.5
 
 ## Requirements
 
-* python^3.9
+* python^3.10
 * GenIce2^2.2.5.2
-* graphstat^0.2.1
-* cycless^0.4.2
+* graphstat^0.3.3
 * yaplotlib^0.1.2
-* numpy^1.26.4
-* networkx^3.2.1
+* numpy>=1.26.4
+* networkx>=3.2.1
+* cycless>=0.6.3
 
 
 ## Installation from PyPI

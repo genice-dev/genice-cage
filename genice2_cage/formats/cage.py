@@ -6,20 +6,20 @@ A GenIce2 format plugin to detect cage-like topologies.
 
 Usage:
     % genice2 CS1 -r 2 2 2 -f cage[12,14-16:ring=-6]
-    % genice2 CRN1 -f cage[sizes=3-10:json]
+    % genice2 CRN1 -f cage[sizes=3-10:geom]
     % genice2 CRN1 -f cage[sizes=3-10:yaplot]
     % genice2 CS2 -w tip4p -f cage[gromacs:sizes=-16:ring=5,6]
     % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad]
-    % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:json]
-    % genice2 FAU -r 2 2 2 -f cage[-26:maxring=12:json2]
+    % analice2 traj.gro -O OW -H HW[12] -w tip4p -f cage[quad:geom]
+    % genice2 zra-d -r 2 2 2 -f cage[solid]
 
 It may not work with a small structure. (In the example above, the unit cell of CS1 is extended to 2x2x2 so as to avoid detecting cell-spanning wierd cages.)
 
 Options:
     Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-16)
     ring=3,5-6 Specify the ring sizes that cages are built of (default is 3-8, maximum is 8).
-    json       Output values in [JSON](https://www.json.org/) format.
-    json2      Output values in [JSON](https://www.json.org/) format (Assess cage locations based on HB network topology by labeling them).
+    geom, json Output geometric information in [JSON](https://www.json.org/) format.
+    solid      Output solid-angle order parameter in [JSON](https://www.json.org/) format.
     yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
     gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
     quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
@@ -110,12 +110,13 @@ class Format(genice2.formats.Format):
         options = {
             "sizes": set(),
             "ring": None,
-            "json": False,
-            "json2": False,
+            "json": False,  # deprecated
+            "geom": False,  # new name for json
             "gromacs": False,
             "yaplot": False,
             "quad": False,
             "python": False,
+            "solid": False,
         }
 
         for k, v in kwargs.items():
@@ -125,8 +126,14 @@ class Format(genice2.formats.Format):
                 options["ring"] = CageAnalyzer.parse_range(v, min=3, max=8)
             elif k == "sizes":
                 options["sizes"] = CageAnalyzer.parse_range(v, min=3, max=20)
-            elif k in ("json", "JSON"):
-                options["json"] = v
+            elif k in ("json", "JSON"):  # deprecated
+                logger = getLogger()
+                logger.warning(
+                    "The 'json' option is deprecated. Please use 'geom' instead."
+                )
+                options["geom"] = v
+            elif k == "geom":
+                options["geom"] = v
             elif k == "gromacs":
                 options["gromacs"] = v
             elif k == "yaplot":
@@ -137,8 +144,10 @@ class Format(genice2.formats.Format):
                 options["quad"] = v
                 options["sizes"] = {12, 14, 15, 16}
                 options["ring"] = {5, 6}
-            elif k == "json2":
-                options["json2"] = v
+            elif k == "solid":  # for solid-angle order parameter
+                options["solid"] = v
+                options["sizes"] = {12, 14, 15, 16}
+                options["ring"] = {5, 6}
             else:
                 options["sizes"] = CageAnalyzer.parse_range(k, min=3)
 
@@ -213,7 +222,49 @@ class Format(genice2.formats.Format):
                 logger.debug(f"Gromacs output prepared: {len(cages)} cages")
                 return True
 
-            if self.options["quad"]:
+            if self.options["solid"]:
+                ring_sizes_of_node = defaultdict(
+                    lambda: defaultdict(lambda: defaultdict(int))
+                )
+                for cage_id, cage in enumerate(cages):
+                    for ring_id in cage:
+                        for node in ringlist[ring_id]:
+                            # nodeは、cageに属しており、かつケージの3つの環に属している。そのサイズを知りたい。
+                            ring_size = len(ringlist[ring_id])
+                            ring_sizes_of_node[node][cage_id][ring_size] += 1
+                # ic(ring_sizes_of_node[0])
+
+                # 立体角 (sharpは3つの各がいずれも108度、bluntは1つが120度、2つが108度)
+                # 計算方法: https://colab.research.google.com/drive/1RTAYrecbUCmkqyMnwx3BgCd0XA5YpekI?usp=sharing
+                sharp_angle, blunt_angle = 2.9617391537973146, 3.4849171340837106
+                solid_angles = dict()
+                for node, cagedict in ring_sizes_of_node.items():
+                    if len(cagedict) != 4:
+                        raise ValueError(f"Invalid number of cages: {len(cagedict)}")
+                    sharp = 0
+                    blunt = 0
+                    for cage_id, ring_sizes in cagedict.items():
+                        if ring_sizes == {5: 2, 6: 1}:
+                            blunt += 1
+                        elif ring_sizes == {5: 3}:
+                            sharp += 1
+                        else:
+                            raise ValueError(f"Invalid ring sizes: {ring_sizes}")
+                    # 4つの立体角の、4piからの二乗偏差を計算
+                    total_solid_angle = sharp * sharp_angle + blunt * blunt_angle
+                    solid_angles[node] = total_solid_angle
+
+                deviation = 4 * np.pi - np.array(list(solid_angles.values()))
+                logger.info(
+                    f"  Mean square deviation of solid angles: {np.mean(deviation**2)}"
+                )
+
+                output = dict()
+                output["solid_angles"] = solid_angles
+                output["deviation"] = np.mean(deviation**2)
+                print(json.dumps(output, indent=2, sort_keys=True))
+
+            elif self.options["quad"]:
                 oncage = defaultdict(list)
                 for cage in cages:
                     nodes = set()
@@ -236,61 +287,32 @@ class Format(genice2.formats.Format):
                     v = op[node]
                     stat[v] += 1
 
-                if self.options["json"]:
-                    output = dict()
-                    N = positions.shape[0]
-                    output["op"] = {str(k): v for k, v in op.items()}
-                    output["stat"] = {k: v / N for k, v in stat.items()}
-                    print(json.dumps(output, indent=2, sort_keys=True))
-                else:
-                    for node in sorted(op):
-                        print(node, op[node])
-                    print("# Statistics")
-                    for v in sorted(stat):
-                        print(
-                            "{0} {1} {2}/{3}".format(
-                                v,
-                                stat[v] / positions.shape[0],
-                                stat[v],
-                                positions.shape[0],
-                            )
-                        )
+                # if self.options["stat"]:
+                output = dict()
+                N = positions.shape[0]
+                output["op"] = {str(k): v for k, v in op.items()}
+                output["stat"] = {k: v / N for k, v in stat.items()}
+                print(json.dumps(output, indent=2, sort_keys=True))
+                # else:
+                #     for node in sorted(op):
+                #         print(node, op[node])
+                #     print("# Statistics")
+                #     for v in sorted(stat):
+                #         print(
+                #             "{0} {1} {2}/{3}".format(
+                #                 v,
+                #                 stat[v] / positions.shape[0],
+                #                 stat[v],
+                #                 positions.shape[0],
+                #             )
+                #         )
 
-            elif self.options["json"]:
+            elif self.options["geom"]:
                 output = dict()
                 output["rings"] = ringlist
                 output["cages"] = cages
                 output["ringpos"] = [[x, y, z] for x, y, z in ringpos]
                 output["cagepos"] = [[x, y, z] for x, y, z in cagepos]
-                print(json.dumps(output, indent=2, sort_keys=True))
-            elif self.options["json2"]:
-                for cage in cages:
-                    g = cage_to_graph(cage, ringlist)
-                    cagesize = len(cage)
-                    g_id = db.query_id(g)
-                    # if it is a new cage type
-                    if g_id < 0:
-                        # new type!
-                        # register the last query
-                        g_id = db.register()
-                        # prepare a new label
-                        label = CageAnalyzer.assign_unused_label(cagesize, labels)
-                        g_id2label[g_id] = label
-                        labels.add(label)
-                        # cage expression
-                        index = CageAnalyzer.make_cage_expression(cage, ringlist)
-                        logger.info(f"  Cage type: {label} ({index})")
-                    else:
-                        label = g_id2label[g_id]
-                    cagetypes.append(label)
-                if len(cagepos) == 0:
-                    logger.info("  No cages detected.")
-                    print("No cages detected.")
-                output = dict(
-                    Rings=len(ringlist),
-                    Cages=len(cages),
-                    details=dict(Counter(cagetypes)),
-                )
                 print(json.dumps(output, indent=2, sort_keys=True))
             elif self.options["yaplot"]:
                 s = ""
