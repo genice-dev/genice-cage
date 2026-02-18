@@ -19,7 +19,7 @@ Options:
     Cage sizes to be listed, separated by commas and ranged with hyphens. (e.g. -4,6,8-10,16-) (default is 3-16)
     ring=3,5-6 Specify the ring sizes that cages are built of (default is 3-8, maximum is 8).
     geom, json Output geometric information in [JSON](https://www.json.org/) format.
-    solid      Output solid-angle order parameter in [JSON](https://www.json.org/) format.
+    solid      Output solid-angle order parameter in [JSON](https://www.json.org/) format for the analysis of the Frank-Kasper clathrates.
     yaplot     Visualize cages with [Yaplot](https://github.com/vitroid/Yaplot/). Cages are drawn in different layers according to the number of faces, and faces are colored according to the number of vertices.
     gromacs    Output individual cages in Gromacs format. (EXPERIMENTAL)
     quad       Quadcage order parameter to identify the Frank-Kasper-type crystal structures.[JMM2011] Cages sizes and maximum ring size are set appropriately automatically.
